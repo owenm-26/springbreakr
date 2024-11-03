@@ -7,44 +7,86 @@ export interface MacroLocationOption {
   country: string;
   description: string;
   status: number;
-  imageUrl: string;
+  imageUrl?: string;
 }
 
 export default function SummaryPage() {
   const [macroLocations, setMacroLocations] = useState<
     MacroLocationOption[] | null
   >(null);
+  const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
 
   // Retrieve the input parameter from the URL
   const summary = searchParams.get("request") || "No input provided";
 
+  // First useEffect to parse the URL parameters
   useEffect(() => {
-    try {
-      const recommendationsParam = searchParams.get("recommendations");
-      if (!recommendationsParam) {
-        console.error("no macro");
-        return;
-      }
+    const initializeLocations = async () => {
+      try {
+        const recommendationsParam = searchParams.get("recommendations");
+        if (!recommendationsParam) {
+          console.error("no macro");
+          setLoading(false);
+          return;
+        }
 
-      const decodedJson = decodeURIComponent(recommendationsParam);
-      // const decodedJson = fixAndParseJSON(decodedJson);
-      const rawIdeas = JSON.parse(decodedJson);
+        const decodedJson = decodeURIComponent(recommendationsParam);
+        const rawIdeas = JSON.parse(decodedJson);
 
-      if (rawIdeas) {
-        const initialLocations: MacroLocationOption[] = rawIdeas.map(
-          (item: any) => ({
+        if (rawIdeas && Array.isArray(rawIdeas)) {
+          const locationsWithPlaceholders = rawIdeas.map((item: any) => ({
             country: item.country,
             description: item.description,
             status: 0,
-            imageUrl: "FIX LATER",
-          })
-        );
-        setMacroLocations(initialLocations);
+            imageUrl: "", // Start with empty imageUrl
+          }));
+
+          // Set initial state with placeholder images
+          setMacroLocations(locationsWithPlaceholders);
+
+          // Fetch images for each location
+          const updatedLocations = await Promise.all(
+            locationsWithPlaceholders.map(async (location) => {
+              try {
+                const response = await fetch(
+                  `/api/get_location_image?location=${encodeURIComponent(
+                    location.country
+                  )}`
+                );
+
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return {
+                  ...location,
+                  imageUrl: data.image_url,
+                };
+              } catch (error) {
+                console.error(
+                  `Error fetching image for ${location.country}:`,
+                  error
+                );
+                return {
+                  ...location,
+                  imageUrl: "/fallback-image.jpg", // Use a fallback image path
+                };
+              }
+            })
+          );
+
+          setMacroLocations(updatedLocations);
+        }
+      } catch (error) {
+        console.error("Error initializing locations:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error initializing locations:", error);
-    }
+    };
+
+    initializeLocations();
   }, [searchParams]);
 
   const handleSelect = (country: MacroLocationOption) => {
@@ -72,6 +114,14 @@ export default function SummaryPage() {
         ) || null
     );
   };
+
+  if (loading) {
+    return (
+      <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
+        <p>Loading locations...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">

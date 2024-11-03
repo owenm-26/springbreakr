@@ -1,11 +1,16 @@
 from flask import Flask, request, jsonify
 import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+SEARCH_ENGINE_ID=os.getenv("SEARCH_ENGINE_ID")
+API_KEY=os.getenv("API_KEY")
 
 app = Flask(__name__)
 
 # Replace these with your actual Google API Key and Search Engine ID
-API_KEY = "AIzaSyB73ZGyvdF5SxqhfgdQNZd5yR9HmzyAZXg"
-SEARCH_ENGINE_ID = "c366d83506f9e451b"
+
 
 def fetch_image_for_location(location):
     url = f"https://www.googleapis.com/customsearch/v1?q={location}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}"
@@ -38,4 +43,4 @@ def location_image():
         return jsonify({"error": "No image found for the specified location"}), 404
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

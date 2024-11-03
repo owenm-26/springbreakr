@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Row, Col, Typography } from "antd";
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-
-import { MacroLocationOption } from "@/app/summary/page";
 
 const { Title, Text } = Typography;
+
+interface MacroLocationOption {
+  country: string;
+  description: string;
+  imageUrl?: string;
+  status: number;
+}
 
 interface MacroCardProps {
   options: MacroLocationOption[];
@@ -17,99 +21,184 @@ const MacroCard: React.FC<MacroCardProps> = ({
   onSelect,
   onRemove,
 }) => {
-  const [currentOptions, setCurrentOptions] = useState<MacroLocationOption[]>(
-    []
+  const [leftOption, setLeftOption] = useState<MacroLocationOption | null>(
+    null
   );
-  const [eligibleOptions, setEligibleOptions] = useState<MacroLocationOption[]>(
-    []
+  const [rightOption, setRightOption] = useState<MacroLocationOption | null>(
+    null
   );
+  const [removingLeft, setRemovingLeft] = useState(false);
+  const [removingRight, setRemovingRight] = useState(false);
 
-  // Initialize state with options
   useEffect(() => {
-    setEligibleOptions(options.filter((option) => option.status === 0));
-    setCurrentOptions(
-      options.filter((option) => option.status === 0).slice(0, 2)
-    ); // Only show two options initially
+    const eligible = options.filter((option) => option.status !== 1);
+    setLeftOption(eligible[0] || null);
+    setRightOption(eligible[1] || null);
   }, [options]);
 
-  // Handle selection of an option
   const handleSelect = (country: MacroLocationOption) => {
     onSelect(country);
   };
 
-  // Handle removal of an option
-  const handleRemove = (country: MacroLocationOption) => {
-    setCurrentOptions((prev) => prev.filter((option) => option !== country));
+  const handleRemove = async (
+    country: MacroLocationOption,
+    side: "left" | "right"
+  ) => {
+    if (side === "left") {
+      setRemovingLeft(true);
+    } else {
+      setRemovingRight(true);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
     onRemove(country);
 
-    // Update eligible options after removal
-    const nextEligible = eligibleOptions.filter((option) => option !== country);
-    if (nextEligible.length > 0) {
-      const nextOption = nextEligible[0]; // Get the next eligible option
-      setCurrentOptions((prev) => {
-        if (prev.length < 2) {
-          return [...prev, nextOption]; // Add the next eligible option if there's space
-        }
-        return prev;
-      });
+    if (side === "left") {
+      const nextEligible = options.filter(
+        (option) =>
+          option.status !== 1 && option.country !== leftOption?.country
+      );
+      setLeftOption(nextEligible[0] || null);
+      setRemovingLeft(false);
+    } else {
+      const nextEligible = options.filter(
+        (option) =>
+          option.status !== 1 && option.country !== rightOption?.country
+      );
+      setRightOption(nextEligible[0] || null);
+      setRemovingRight(false);
     }
   };
 
   return (
-    <Row
-      justify="center"
-      align="middle"
-      style={{ height: "90vh", width: "100%" }}
-    >
-      {currentOptions.map((country, index) => (
-        <Col
-          key={index}
-          span={12}
-          style={{ display: "flex", justifyContent: "center" }}
-        >
-          <Card
-            hoverable
-            style={{
-              width: "90%",
-              height: "100%",
-              borderRadius: "10px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-              position: "relative",
-            }}
-            cover={
-              <img
-                alt={country.country}
-                src={
-                  "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
-                }
-                style={{
-                  borderRadius: "10px 10px 0 0",
-                  height: "60%",
-                  objectFit: "cover",
-                }}
-              />
-            }
+    <Row className="h-[90vh] w-full justify-center items-center">
+      <Col className="flex justify-center w-1/2">
+        {leftOption && (
+          <div
+            className={`relative w-[90%] transition-all duration-1000
+              ${removingLeft ? "animate-shake bg-red-100" : ""}`}
           >
-            <Title level={3}>{country.country}</Title>
-            <Text>{country.description}</Text>
-            <div
-              style={{ position: "absolute", bottom: "16px", right: "16px" }}
-            >
-              <Button
-                type="primary"
-                icon={<CheckCircleOutlined />}
-                onClick={() => handleSelect(country)}
-              />
-              <Button
-                type="default"
-                icon={<CloseCircleOutlined />}
-                onClick={() => handleRemove(country)}
-                style={{ marginLeft: "8px" }}
-              />
-            </div>
-          </Card>
-        </Col>
-      ))}
+            <Card className="relative overflow-hidden rounded-lg shadow-lg">
+              {/* Cross-out line when removing */}
+              <div
+                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center
+                transition-transform duration-1000 pointer-events-none
+                ${removingLeft ? "translate-x-0" : "-translate-x-full"}`}
+              >
+                {removingLeft && (
+                  <svg
+                    className="w-32 h-32 text-red-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
+              </div>
+
+              <div className="h-[60vh] overflow-hidden rounded-t-lg">
+                <img
+                  alt={leftOption.country}
+                  src={leftOption.imageUrl || "/api/placeholder/800/600"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="p-4">
+                <Title level={3}>{leftOption.country}</Title>
+                <Text>{leftOption.description}</Text>
+
+                <div className="absolute bottom-4 right-4 flex gap-2">
+                  <Button
+                    onClick={() => handleSelect(leftOption)}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    Select
+                  </Button>
+                  <Button
+                    onClick={() => handleRemove(leftOption, "left")}
+                    variant="solid"
+                    className="hover:bg-red-100"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </Col>
+
+      <Col className="flex justify-center w-1/2">
+        {rightOption && (
+          <div
+            className={`relative w-[90%] transition-all duration-1000
+              ${removingRight ? "animate-shake bg-red-100" : ""}`}
+          >
+            <Card className="relative overflow-hidden rounded-lg shadow-lg">
+              {/* Cross-out line when removing */}
+              <div
+                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center
+                transition-transform duration-1000 pointer-events-none
+                ${removingRight ? "translate-x-0" : "-translate-x-full"}`}
+              >
+                {removingRight && (
+                  <svg
+                    className="w-32 h-32 text-red-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
+              </div>
+
+              <div className="h-[60vh] overflow-hidden rounded-t-lg">
+                <img
+                  alt={rightOption.country}
+                  src={rightOption.imageUrl || "/api/placeholder/800/600"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="p-4">
+                <Title level={3}>{rightOption.country}</Title>
+                <Text>{rightOption.description}</Text>
+
+                <div className="absolute bottom-4 right-4 flex gap-2">
+                  <Button
+                    onClick={() => handleSelect(rightOption)}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    Select
+                  </Button>
+                  <Button
+                    onClick={() => handleRemove(rightOption, "right")}
+                    variant="solid"
+                    className="hover:bg-red-100"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </Col>
     </Row>
   );
 };
