@@ -1,6 +1,6 @@
 "use client";
 import MacroCard from "@/components/MacroCard";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export interface MacroLocationOption {
@@ -16,6 +16,7 @@ export default function SummaryPage() {
   >(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Retrieve the input parameter from the URL
   const summary = searchParams.get("request") || "No input provided";
@@ -25,6 +26,7 @@ export default function SummaryPage() {
     const initializeLocations = async () => {
       try {
         const recommendationsParam = searchParams.get("recommendations");
+        console.log(recommendationsParam);
         if (!recommendationsParam) {
           console.error("no macro");
           setLoading(false);
@@ -35,12 +37,13 @@ export default function SummaryPage() {
         const rawIdeas = JSON.parse(decodedJson);
 
         if (rawIdeas && Array.isArray(rawIdeas)) {
-          const locationsWithPlaceholders = rawIdeas.map((item: any) => ({
-            country: item.country,
-            description: item.description,
-            status: 0,
-            imageUrl: "", // Start with empty imageUrl
-          }));
+          const locationsWithPlaceholders = rawIdeas.map(
+            (item: MacroLocationOption) => ({
+              country: item.country,
+              description: item.description,
+              status: 0,
+            })
+          );
 
           // Set initial state with placeholder images
           setMacroLocations(locationsWithPlaceholders);
@@ -71,7 +74,8 @@ export default function SummaryPage() {
                 );
                 return {
                   ...location,
-                  imageUrl: "/fallback-image.jpg", // Use a fallback image path
+                  imageUrl:
+                    "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70", // Use a fallback image path
                 };
               }
             })
@@ -100,6 +104,8 @@ export default function SummaryPage() {
             : location
         ) || null
     );
+
+    router.push(`/microlocations?country=${country}`);
   };
 
   const handleRemove = (country: MacroLocationOption) => {
@@ -128,7 +134,7 @@ export default function SummaryPage() {
       <h1 className="text-4xl font-bold mb-4 text-black">
         Your Spring Break Summary
       </h1>
-      <p className="mb-8 text-gray-800">Here's what you want to do:</p>
+      <p className="mb-8 text-gray-800">Here is what you want to do:</p>
       <div className="p-4 border border-gray-300 rounded-lg bg-white">
         <p className="text-lg text-black">{summary}</p>
       </div>
@@ -137,6 +143,7 @@ export default function SummaryPage() {
           options={macroLocations}
           onSelect={handleSelect}
           onRemove={handleRemove}
+          size="large"
         />
       ) : (
         <p>Error: We are having trouble with your request</p>

@@ -3,23 +3,25 @@ import { Card, Button, Row, Col, Typography } from "antd";
 
 const { Title, Text } = Typography;
 
-interface MacroLocationOption {
+export interface MacroLocationOption {
   country: string;
   description: string;
-  imageUrl?: string;
   status: number;
+  imageUrl?: string;
 }
 
 interface MacroCardProps {
-  options: MacroLocationOption[];
+  options: MacroLocationOption[]; // Changed `option` to `options`
   onSelect: (country: MacroLocationOption) => void;
   onRemove: (country: MacroLocationOption) => void;
+  size?: "small" | "large";
 }
 
 const MacroCard: React.FC<MacroCardProps> = ({
   options,
   onSelect,
   onRemove,
+  size = "large",
 }) => {
   const [leftOption, setLeftOption] = useState<MacroLocationOption | null>(
     null
@@ -71,19 +73,21 @@ const MacroCard: React.FC<MacroCardProps> = ({
   };
 
   return (
-    <Row className="h-[90vh] w-full justify-center items-center">
+    <Row className={size === "large" ? "h-[90vh] w-full" : "h-[70vh] w-full"}>
       <Col className="flex justify-center w-1/2">
         {leftOption && (
           <div
-            className={`relative w-[90%] transition-all duration-1000
-              ${removingLeft ? "animate-shake bg-red-100" : ""}`}
+            className={`relative ${
+              size === "large" ? "w-[90%] h-[70vh]" : "w-[80%] h-[50vh]"
+            } transition-all duration-1000 ${
+              removingLeft ? "animate-shake bg-red-100" : ""
+            }`}
           >
             <Card className="relative overflow-hidden rounded-lg shadow-lg">
-              {/* Cross-out line when removing */}
               <div
-                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center
-                transition-transform duration-1000 pointer-events-none
-                ${removingLeft ? "translate-x-0" : "-translate-x-full"}`}
+                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center transition-transform duration-1000 pointer-events-none ${
+                  removingLeft ? "translate-x-0" : "-translate-x-full"
+                }`}
               >
                 {removingLeft && (
                   <svg
@@ -124,7 +128,6 @@ const MacroCard: React.FC<MacroCardProps> = ({
                   </Button>
                   <Button
                     onClick={() => handleRemove(leftOption, "left")}
-                    variant="solid"
                     className="hover:bg-red-100"
                   >
                     Remove
@@ -139,15 +142,17 @@ const MacroCard: React.FC<MacroCardProps> = ({
       <Col className="flex justify-center w-1/2">
         {rightOption && (
           <div
-            className={`relative w-[90%] transition-all duration-1000
-              ${removingRight ? "animate-shake bg-red-100" : ""}`}
+            className={`relative ${
+              size === "large" ? "w-[90%] h-[70vh]" : "w-[80%] h-[50vh]"
+            } transition-all duration-1000 ${
+              removingRight ? "animate-shake bg-red-100" : ""
+            }`}
           >
             <Card className="relative overflow-hidden rounded-lg shadow-lg">
-              {/* Cross-out line when removing */}
               <div
-                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center
-                transition-transform duration-1000 pointer-events-none
-                ${removingRight ? "translate-x-0" : "-translate-x-full"}`}
+                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center transition-transform duration-1000 pointer-events-none ${
+                  removingRight ? "translate-x-0" : "-translate-x-full"
+                }`}
               >
                 {removingRight && (
                   <svg
@@ -188,7 +193,6 @@ const MacroCard: React.FC<MacroCardProps> = ({
                   </Button>
                   <Button
                     onClick={() => handleRemove(rightOption, "right")}
-                    variant="solid"
                     className="hover:bg-red-100"
                   >
                     Remove
