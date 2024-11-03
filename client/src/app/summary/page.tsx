@@ -105,7 +105,11 @@ export default function SummaryPage() {
         ) || null
     );
 
-    router.push(`/microlocations?country=${country}`);
+    router.push(
+      `/microlocations?country=${country.country}&prompt=${encodeURIComponent(
+        summary
+      )}`
+    );
   };
 
   const handleRemove = (country: MacroLocationOption) => {

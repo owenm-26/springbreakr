@@ -1,15 +1,13 @@
 "use client";
-
+import { useSearchParams } from "next/navigation";
 import MacroCard, { MacroLocationOption } from "@/components/MacroCard";
 import { useEffect, useState } from "react";
 
-export default function MicroLocationPage({
-  country,
-  prompt,
-}: {
-  country: string;
-  prompt: string;
-}) {
+export default function MicroLocationPage() {
+  const searchParams = useSearchParams();
+  const country = searchParams.get("country");
+  const prompt = searchParams.get("prompt");
+
   const [microLocations, setMicroLocations] = useState<
     MacroLocationOption[] | null
   >(null);
@@ -17,9 +15,12 @@ export default function MicroLocationPage({
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!country || !prompt) return; // Ensure both parameters are available
       try {
         const response = await fetch(
-          `/api/get_micro_recommendations/${country}`,
+          `/api/get_micro_recommendations?country=${encodeURIComponent(
+            country
+          )}`,
           {
             method: "POST",
             headers: {
@@ -34,16 +35,13 @@ export default function MicroLocationPage({
         }
 
         const data = await response.json();
-        console.log(data.recommendation);
 
-        // Assuming `recommendation` is an array of locations with 'location' and 'description'
         if (data.recommendation) {
           const locations = JSON.parse(data.recommendation).map(
             (item: MacroLocationOption) => ({
-              country: item.location,
+              country: item.country,
               description: item.description,
               status: 0,
-              imageUrl: "", // Placeholder for imageUrl
             })
           );
           setMicroLocations(locations);
@@ -56,23 +54,56 @@ export default function MicroLocationPage({
     };
 
     fetchData();
-  }, [country, prompt]);
+  }, [country, prompt]); // Add prompt to dependencies
+
+  // Other component code (handleSelect, handleRemove, loading state, etc.)
+
+  const handleSelect = (country: MacroLocationOption) => {
+    if (!microLocations) return;
+
+    setMicroLocations(
+      (prevLocations) =>
+        prevLocations?.map((location) =>
+          location.country === country.country
+            ? { ...location, status: 2 }
+            : location
+        ) || null
+    );
+  };
+
+  const handleRemove = (country: MacroLocationOption) => {
+    if (!microLocations) return;
+
+    setMicroLocations(
+      (prevLocations) =>
+        prevLocations?.map((location) =>
+          location.country === country.country
+            ? { ...location, status: 1 }
+            : location
+        ) || null
+    );
+  };
 
   if (loading) {
-    return <p>Loading recommendations...</p>;
+    return (
+      <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
+        <p>Loading locations...</p>
+      </main>
+    );
   }
 
   return (
-    <main className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full max-w-4xl">
-      {microLocations?.map((location) => (
+    <main>
+      {microLocations ? (
         <MacroCard
-          key={location.country}
-          option={location}
-          onSelect={() => console.log(`Selected ${location.country}`)}
-          onRemove={() => console.log(`Removed ${location.country}`)}
+          options={microLocations}
+          onSelect={handleSelect}
+          onRemove={handleRemove}
           size="small"
         />
-      ))}
+      ) : (
+        <p>Error</p>
+      )}
     </main>
   );
 }

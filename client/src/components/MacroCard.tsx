@@ -110,7 +110,10 @@ const MacroCard: React.FC<MacroCardProps> = ({
               <div className="h-[60vh] overflow-hidden rounded-t-lg">
                 <img
                   alt={leftOption.country}
-                  src={leftOption.imageUrl || "/api/placeholder/800/600"}
+                  src={
+                    leftOption.imageUrl ||
+                    "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
+                  }
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -175,7 +178,10 @@ const MacroCard: React.FC<MacroCardProps> = ({
               <div className="h-[60vh] overflow-hidden rounded-t-lg">
                 <img
                   alt={rightOption.country}
-                  src={rightOption.imageUrl || "/api/placeholder/800/600"}
+                  src={
+                    rightOption.imageUrl ||
+                    "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
+                  }
                   className="w-full h-full object-cover"
                 />
               </div>
