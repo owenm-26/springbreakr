@@ -11,7 +11,7 @@ export interface MacroLocationOption {
 }
 
 interface MacroCardProps {
-  options: MacroLocationOption[]; // Changed `option` to `options`
+  options: MacroLocationOption[];
   onSelect: (country: MacroLocationOption) => void;
   onRemove: (country: MacroLocationOption) => void;
   size?: "small" | "large";
@@ -23,192 +23,82 @@ const MacroCard: React.FC<MacroCardProps> = ({
   onRemove,
   size = "large",
 }) => {
-  const [leftOption, setLeftOption] = useState<MacroLocationOption | null>(
-    null
+  const [displayOptions, setDisplayOptions] = useState<MacroLocationOption[]>(
+    []
   );
-  const [rightOption, setRightOption] = useState<MacroLocationOption | null>(
-    null
-  );
-  const [removingLeft, setRemovingLeft] = useState(false);
-  const [removingRight, setRemovingRight] = useState(false);
 
   useEffect(() => {
     const eligible = options.filter((option) => option.status !== 1);
-    setLeftOption(eligible[0] || null);
-    setRightOption(eligible[1] || null);
-  }, [options]);
-
-  const handleSelect = (country: MacroLocationOption) => {
-    onSelect(country);
-  };
-
-  const handleRemove = async (
-    country: MacroLocationOption,
-    side: "left" | "right"
-  ) => {
-    if (side === "left") {
-      setRemovingLeft(true);
+    if (size === "large") {
+      setDisplayOptions(eligible.slice(0, 2));
     } else {
-      setRemovingRight(true);
+      setDisplayOptions(eligible.slice(0, 6));
     }
+  }, [options, size]);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    onRemove(country);
-
-    if (side === "left") {
-      const nextEligible = options.filter(
-        (option) =>
-          option.status !== 1 && option.country !== leftOption?.country
-      );
-      setLeftOption(nextEligible[0] || null);
-      setRemovingLeft(false);
-    } else {
-      const nextEligible = options.filter(
-        (option) =>
-          option.status !== 1 && option.country !== rightOption?.country
-      );
-      setRightOption(nextEligible[0] || null);
-      setRemovingRight(false);
-    }
-  };
+  const renderCard = (option: MacroLocationOption) => (
+    <div
+      className={`relative ${
+        size === "large" ? "w-[90%] h-[70vh]" : "w-full h-[50vh]"
+      }`}
+    >
+      <Card className="relative overflow-hidden rounded-lg shadow-lg h-full">
+        <div className="h-[200px] overflow-hidden rounded-t-lg">
+          <img
+            alt={option.country}
+            src={
+              option.imageUrl ||
+              "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
+            }
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="p-4">
+          <Title level={size === "small" ? 5 : 3}>{option.country}</Title>
+          <Text className="line-clamp-2">{option.description}</Text>
+          <div className="absolute bottom-4 right-4 flex gap-2">
+            <Button
+              onClick={() => onSelect(option)}
+              className="bg-green-500 hover:bg-green-600"
+              size={size === "small" ? "small" : "middle"}
+            >
+              Select
+            </Button>
+            <Button
+              onClick={() => onRemove(option)}
+              className="hover:bg-red-100"
+              size={size === "small" ? "small" : "middle"}
+            >
+              Remove
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
 
   return (
-    <Row className={size === "large" ? "h-[90vh] w-full" : "h-[70vh] w-full"}>
-      <Col className="flex justify-center w-1/2">
-        {leftOption && (
-          <div
-            className={`relative ${
-              size === "large" ? "w-[90%] h-[70vh]" : "w-[80%] h-[50vh]"
-            } transition-all duration-1000 ${
-              removingLeft ? "animate-shake bg-red-100" : ""
-            }`}
-          >
-            <Card className="relative overflow-hidden rounded-lg shadow-lg">
-              <div
-                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center transition-transform duration-1000 pointer-events-none ${
-                  removingLeft ? "translate-x-0" : "-translate-x-full"
-                }`}
-              >
-                {removingLeft && (
-                  <svg
-                    className="w-32 h-32 text-red-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                )}
-              </div>
-
-              <div className="h-[60vh] overflow-hidden rounded-t-lg">
-                <img
-                  alt={leftOption.country}
-                  src={
-                    leftOption.imageUrl ||
-                    "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
-                  }
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="p-4">
-                <Title level={3}>{leftOption.country}</Title>
-                <Text>{leftOption.description}</Text>
-
-                <div className="absolute bottom-4 right-4 flex gap-2">
-                  <Button
-                    onClick={() => handleSelect(leftOption)}
-                    className="bg-green-500 hover:bg-green-600"
-                  >
-                    Select
-                  </Button>
-                  <Button
-                    onClick={() => handleRemove(leftOption, "left")}
-                    className="hover:bg-red-100"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
-      </Col>
-
-      <Col className="flex justify-center w-1/2">
-        {rightOption && (
-          <div
-            className={`relative ${
-              size === "large" ? "w-[90%] h-[70vh]" : "w-[80%] h-[50vh]"
-            } transition-all duration-1000 ${
-              removingRight ? "animate-shake bg-red-100" : ""
-            }`}
-          >
-            <Card className="relative overflow-hidden rounded-lg shadow-lg">
-              <div
-                className={`absolute inset-0 z-10 bg-red-500/20 flex items-center justify-center transition-transform duration-1000 pointer-events-none ${
-                  removingRight ? "translate-x-0" : "-translate-x-full"
-                }`}
-              >
-                {removingRight && (
-                  <svg
-                    className="w-32 h-32 text-red-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                )}
-              </div>
-
-              <div className="h-[60vh] overflow-hidden rounded-t-lg">
-                <img
-                  alt={rightOption.country}
-                  src={
-                    rightOption.imageUrl ||
-                    "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
-                  }
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="p-4">
-                <Title level={3}>{rightOption.country}</Title>
-                <Text>{rightOption.description}</Text>
-
-                <div className="absolute bottom-4 right-4 flex gap-2">
-                  <Button
-                    onClick={() => handleSelect(rightOption)}
-                    className="bg-green-500 hover:bg-green-600"
-                  >
-                    Select
-                  </Button>
-                  <Button
-                    onClick={() => handleRemove(rightOption, "right")}
-                    className="hover:bg-red-100"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
-      </Col>
+    <Row className="h-[90vh] w-full">
+      {size === "large" ? (
+        <>
+          <Col className="flex justify-center w-1/2">
+            {renderCard(displayOptions[0])}
+          </Col>
+          <Col className="flex justify-center w-1/2">
+            {renderCard(displayOptions[1])}
+          </Col>
+        </>
+      ) : (
+        <div className="h-[90vh] w-full p-4">
+          <Row gutter={[16, 16]}>
+            {displayOptions.map((option, index) => (
+              <Col key={index} span={8}>
+                {renderCard(option)}
+              </Col>
+            ))}
+          </Row>
+        </div>
+      )}
     </Row>
   );
 };

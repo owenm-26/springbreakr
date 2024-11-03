@@ -110,7 +110,7 @@ def get_micro_recommendations(country):
     # Prepare the data payload to send to the external API
     payload = {
         "prompt": prompt,
-        "systemprompt": f"You are a helpful travel assistant trying to recommend 5 LOCATIONS within {country} for travelling based on the user's request. Give your response as a JSON ONLY with 'location' as the location you recommend and 'description' as a short description of that location. Your response should be just the LIST OF JSON and NOTHING ELSE."
+        "systemprompt": f"You are a helpful travel assistant trying to recommend 10 LOCATIONS within {country} for travelling based on the user's request. Give your response as a JSON ONLY with 'location' as the location you recommend and 'description' as a short description of that location. Your response should be just the LIST OF JSON and NOTHING ELSE."
     }
 
     try:
