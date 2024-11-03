@@ -51,9 +51,44 @@ export default function MicroLocationPage() {
             country: item.location,
             description: item.description,
             status: 0,
+            imageUrl: null, // Initialize imageUrl
           })
         );
-        setMicroLocations(locations);
+
+        // Fetch images for each location
+        const locationsWithImages = await Promise.all(
+          locations.map(async (location: MacroLocationOption) => {
+            try {
+              const imageResponse = await fetch(
+                `/api/get_location_image?location=${encodeURIComponent(
+                  location.country
+                )}`
+              );
+
+              if (!imageResponse.ok) {
+                throw new Error(`HTTP error! status: ${imageResponse.status}`);
+              }
+
+              const imageData = await imageResponse.json();
+              return {
+                ...location,
+                imageUrl:
+                  imageData.image_url || "https://default-image-url.jpg", // Fallback image URL
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching image for ${location.country}:`,
+                error
+              );
+              return {
+                ...location,
+                imageUrl: "https://default-image-url.jpg", // Fallback image URL
+              };
+            }
+          })
+        );
+
+        setMicroLocations(locationsWithImages);
       } else {
         throw new Error("No recommendations received");
       }
@@ -115,16 +150,13 @@ export default function MicroLocationPage() {
         onClick={() => {
           const selectedCountries =
             microLocations
-              ?.filter((location) => location.status === 2)
+              ?.filter((location) => location.status !== 2)
               .map((location) => location.country) || [];
-
-          router.push(
-            `/itinerary?country=${location}&prompt=${encodeURIComponent(
-              prompt || ""
-            )}&itinerary=${encodeURIComponent(
-              JSON.stringify(selectedCountries)
-            )}`
-          );
+          const url = `/itinerary?country=${location}&prompt=${encodeURIComponent(
+            prompt || ""
+          )}&plan=${encodeURIComponent(JSON.stringify(selectedCountries))}`;
+          console.log("Navigating to:", url);
+          router.push(url);
         }}
       >
         Finish My Trip!

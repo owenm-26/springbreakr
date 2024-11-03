@@ -1,18 +1,18 @@
-// app/itinerary/page.tsx
-
-// import { useRouter } from "next/navigation";
+"use client";
 import { useEffect, useState } from "react";
 
-const ItineraryPage = () => {
-  //   const router = useRouter();
+export default function ItineraryPage() {
   const [locations, setLocations] = useState<string[]>([]);
+  let query;
+  let country = null;
+  let prompt = null;
 
   useEffect(() => {
-    // Get the URL query parameters
-    const query = new URLSearchParams(window.location.search);
-    const itineraryParam = query.get("itinerary");
+    query = new URLSearchParams(window.location.search);
+    const itineraryParam = query.get("plan");
+    country = query.get("country");
+    prompt = query.get("prompt");
 
-    // Parse the itinerary parameter if it exists
     if (itineraryParam) {
       try {
         const parsedLocations = JSON.parse(decodeURIComponent(itineraryParam));
@@ -24,21 +24,39 @@ const ItineraryPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">Your Itinerary</h1>
-      {locations.length > 0 ? (
-        <ul className="list-disc pl-5">
-          {locations.map((location, index) => (
-            <li key={index} className="mb-2 text-lg">
-              {location}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No locations found in your itinerary.</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 to-purple-600 flex flex-col items-center p-8">
+      <h1 className="text-4xl font-extrabold text-white mb-6 animate-bounce">
+        Your Itinerary
+      </h1>
+      <div className="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+        {locations.length > 0 ? (
+          <ul className="list-disc pl-5 text-gray-800">
+            {locations.map((location, index) => (
+              <li
+                key={index}
+                className="mb-4 text-xl transition-transform transform hover:scale-105 hover:text-blue-600"
+              >
+                {location}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-xl text-gray-600">
+            No locations found in your itinerary.
+          </p>
+        )}
+      </div>
+      {locations.length > 0 && country && (
+        <div className="mt-8 bg-white rounded-lg shadow-lg p-4">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Details</h2>
+          <p className="text-gray-700">
+            Country: <span className="font-bold text-blue-600">{country}</span>
+          </p>
+          <p className="text-gray-700">
+            Prompt: <span className="font-bold text-blue-600">{prompt}</span>
+          </p>
+        </div>
       )}
     </div>
   );
-};
-
-export default ItineraryPage;
+}

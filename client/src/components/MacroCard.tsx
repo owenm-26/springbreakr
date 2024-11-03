@@ -43,19 +43,23 @@ const MacroCard: React.FC<MacroCardProps> = ({
       }`}
     >
       <Card className="relative overflow-hidden rounded-lg shadow-lg h-full">
-        <div className="h-[200px] overflow-hidden rounded-t-lg">
+        <div
+          className={`h-${
+            size === "large" ? "[200px]" : "[200px]"
+          } overflow-hidden rounded-t-lg`}
+        >
           <img
-            alt={option.country}
+            alt={option?.country || ""}
             src={
-              option.imageUrl ||
+              option?.imageUrl ||
               "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
             }
             className="w-full h-full object-cover"
           />
         </div>
         <div className="p-4">
-          <Title level={size === "small" ? 5 : 3}>{option.country}</Title>
-          <Text className="line-clamp-2">{option.description}</Text>
+          <Title level={size === "small" ? 5 : 3}>{option?.country}</Title>
+          <Text className="line-clamp-2">{option?.description}</Text>
           <div className="absolute bottom-4 right-4 flex gap-2">
             <Button
               onClick={() => onSelect(option)}
