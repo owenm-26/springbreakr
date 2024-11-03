@@ -36,7 +36,7 @@ def get_macro_recommendations():
     # Prepare the data payload to send to the external API
     payload = {
         "prompt": prompt,
-        "systemprompt": "You are a helpful travel assistant trying to recommend 5 COUNTRIES for travelling based on the user's request. Give your response as a JSON ONLY with 'country' as the country you recommend and 'description' as a short description of that country. Your response should be just the LIST OF JSON and NOTHING ELSE."
+        "systemprompt": "You are a helpful travel assistant trying to recommend 5 COUNTRIES for traveling based on the user's request. Give your response as a JSON ONLY with 'country' as the country you recommend and 'description' as a short description of that country. Your response should be just the LIST OF JSON and NOTHING ELSE."
     }
 
     try:

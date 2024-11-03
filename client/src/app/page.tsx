@@ -25,9 +25,7 @@ export default function Home() {
         router.push(
           `/summary?request=${encodeURIComponent(
             summary
-          )}&recommendations=${encodeURIComponent(
-            JSON.stringify(data.recommendation)
-          )}`
+          )}&recommendations=${encodeURIComponent(data.recommendation)}`
         );
       } else {
         // Handle error response
