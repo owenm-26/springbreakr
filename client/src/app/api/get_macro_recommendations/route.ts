@@ -1,8 +1,6 @@
-// app/api/get_recommendations/route.ts
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  // console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
   try {
     const { prompt } = await request.json();
 
