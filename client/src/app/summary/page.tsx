@@ -10,13 +10,32 @@ export interface MacroLocationOption {
   imageUrl?: string;
 }
 
-export default function SummaryPage() {
+const SummaryPage = () => {
   const [macroLocations, setMacroLocations] = useState<
     MacroLocationOption[] | null
   >(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const renderMacroCards = () => {
+    if (loading) {
+      return <p>Loading locations...</p>;
+    }
+
+    if (!macroLocations) {
+      return <p>Error: We are having trouble with your request</p>;
+    }
+
+    return (
+      <MacroCard
+        options={macroLocations}
+        onSelect={handleSelect}
+        onRemove={handleRemove}
+        size="large"
+      />
+    );
+  };
 
   // Retrieve the input parameter from the URL
   const summary = searchParams.get("request") || "No input provided";
@@ -26,14 +45,17 @@ export default function SummaryPage() {
     const initializeLocations = async () => {
       try {
         const recommendationsParam = searchParams.get("recommendations");
-        console.log(recommendationsParam);
         if (!recommendationsParam) {
           console.error("no macro");
           setLoading(false);
           return;
         }
 
-        const decodedJson = decodeURIComponent(recommendationsParam);
+        let decodedJson = decodeURIComponent(recommendationsParam);
+        if (!decodedJson.endsWith("]")) {
+          decodedJson += "]";
+        }
+
         const rawIdeas = JSON.parse(decodedJson);
 
         if (rawIdeas && Array.isArray(rawIdeas)) {
@@ -63,6 +85,7 @@ export default function SummaryPage() {
                 }
 
                 const data = await response.json();
+
                 return {
                   ...location,
                   imageUrl: data.image_url,
@@ -125,13 +148,13 @@ export default function SummaryPage() {
     );
   };
 
-  if (loading) {
-    return (
-      <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-        <p>Loading locations...</p>
-      </main>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
+  //       <p>Loading locations...</p>
+  //     </main>
+  //   );
+  // }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
@@ -142,16 +165,7 @@ export default function SummaryPage() {
       <div className="p-4 border border-gray-300 rounded-lg bg-white">
         <p className="text-lg text-black">{summary}</p>
       </div>
-      {macroLocations ? (
-        <MacroCard
-          options={macroLocations}
-          onSelect={handleSelect}
-          onRemove={handleRemove}
-          size="large"
-        />
-      ) : (
-        <p>Error: We are having trouble with your request</p>
-      )}
+      {renderMacroCards()}
       <button
         onClick={() => window.history.back()}
         className="mt-8 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition"
@@ -160,4 +174,6 @@ export default function SummaryPage() {
       </button>
     </main>
   );
-}
+};
+
+export default SummaryPage;

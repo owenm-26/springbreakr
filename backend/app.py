@@ -20,6 +20,8 @@ with open("knn_travel_model.pkl", "rb") as f:
 @app.route("/location-image", methods=["GET"])
 def location_image():
     def fetch_image_for_location(location):
+        # getting rid of unsavory content
+        location = f"{location} -map -bomb -explosion -cloud -nuclear -war"
         url = f"https://www.googleapis.com/customsearch/v1?q={location}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}"
         response = requests.get(url)
         if response.status_code == 200:
@@ -86,6 +88,7 @@ def get_macro_recommendations():
                 response_data = response.json()
                 # Extract the specific response part if available
                 recommendation = response_data[0].get("response", {}).get("response", "")
+                
                 return jsonify({"recommendation": recommendation})
             except (ValueError, KeyError, IndexError):
                 return jsonify({"error": "Unexpected response format from the server"}), 500

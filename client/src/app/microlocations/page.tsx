@@ -46,6 +46,10 @@ export default function MicroLocationPage() {
 
       const data = await response.json();
       if (data.recommendation) {
+        if (!data.recommendation.endsWith("]")) {
+          data.recommendation += "]";
+        }
+
         const locations = JSON.parse(data.recommendation).map(
           (item: MicroLocation) => ({
             country: item.location,
