@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("LOCAL_DATABASE_URL")
+}
+
+model Trip {
+  id              Int             @id @unique @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  macroLocation   String
+  microLocations  MicroLocation[]
+  travelers       Traveler[]
+  anonymousVoting Boolean?
+  joinCode        Int?
+}
+
+model MicroLocation {
+  id        Int        @id @unique @default(autoincrement())
+  trips     Trip       @relation(fields: [tripId], references: [id])
+  tripId    Int
+  likers    Traveler[] @relation(name: "Likers")
+  dislikers Traveler[] @relation(name: "Dislikers")
+}
+
+model Traveler {
+  id                     Int             @id @unique @default(autoincrement())
+  trip                   Trip            @relation(fields: [tripId], references: [id])
+  tripId                 Int
+  name                   String
+  likedMicroLocations    MicroLocation[] @relation("Likers")
+  dislikedMicroLocations MicroLocation[] @relation("Dislikers")
+}
