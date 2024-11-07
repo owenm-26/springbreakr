@@ -41,6 +41,7 @@ export default function MicroLocationPage() {
       );
 
       if (!response.ok) {
+        console.log("ERROR from /api/get_micro_recommendations?country=");
         throw new Error(`Error: ${response.status}`);
       }
 
@@ -97,6 +98,7 @@ export default function MicroLocationPage() {
         throw new Error("No recommendations received");
       }
     } catch (error) {
+      console.log(location);
       console.error("Failed to fetch micro recommendations:", error);
       setError(
         error instanceof Error ? error.message : "Failed to fetch locations"
