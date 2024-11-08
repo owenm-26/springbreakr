@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify
 import pickle, requests
 from dotenv import load_dotenv
 import os
+import json
+
 
 load_dotenv()
 SEARCH_ENGINE_ID=os.getenv("SEARCH_ENGINE_ID")
@@ -125,9 +127,22 @@ def get_micro_recommendations(country):
             try:
                 # Parse the JSON response
                 response_data = response.json()
-                # Extract the specific response part if available
                 recommendation = response_data[0].get("response", {}).get("response", "")
-                return jsonify({"recommendation": recommendation})
+                # Extract the specific response part if available
+                start_index = recommendation.find('[')
+                last_index = recommendation.rfind(']') + 1  # Find the last closing bracket
+                
+                # Extract the potential JSON array
+                recommendation = recommendation[start_index:last_index]
+
+                # Attempt to parse it as JSON to validate
+                parsed_recommendation = json.loads(recommendation)
+
+                # Re-format the JSON to remove any formatting issues
+                fixed_recommendation = json.dumps(parsed_recommendation, indent=2)
+
+                print('\n\nfixed', fixed_recommendation)
+                return jsonify({"recommendation": fixed_recommendation})
             except (ValueError, KeyError, IndexError):
                 return jsonify({"error": "Unexpected response format from the server"}), 500
         else:

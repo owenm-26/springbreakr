@@ -98,7 +98,6 @@ export default function MicroLocationPage() {
         throw new Error("No recommendations received");
       }
     } catch (error) {
-      console.log(location);
       console.error("Failed to fetch micro recommendations:", error);
       setError(
         error instanceof Error ? error.message : "Failed to fetch locations"
@@ -144,11 +143,17 @@ export default function MicroLocationPage() {
     // Define the async function to call the create trip API endpoint
     const callCreateTrip = async (
       macroLocation: string,
-      microLocations: string[]
+      microLocations: string[],
+      isCode: boolean
     ) => {
       if (!macroLocation) {
         console.error("Macro location is required");
         return { ok: false, status: 400, error: "Macro location is required" };
+      }
+
+      let joinCode = null;
+      if (isCode) {
+        joinCode = Math.random() * 10 ** 4;
       }
 
       try {
@@ -159,7 +164,8 @@ export default function MicroLocationPage() {
           },
           body: JSON.stringify({
             macroLocation: macroLocation,
-            microLocation: microLocations,
+            microLocations: microLocations,
+            joinCode: joinCode,
           }),
         });
 
@@ -186,7 +192,7 @@ export default function MicroLocationPage() {
         console.error("location DNE");
         return;
       }
-      const response = await callCreateTrip(location, selectedCountries);
+      const response = await callCreateTrip(location, selectedCountries, false);
 
       // Handle response after API call
       if (response.ok) {
@@ -201,7 +207,6 @@ export default function MicroLocationPage() {
       }
     } catch (error) {
       console.error("Failed to complete the trip creation process:", error);
-      alert(`An error occurred: ${error}`);
     }
   };
 
