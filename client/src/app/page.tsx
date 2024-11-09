@@ -27,7 +27,7 @@ export default function Home() {
       if (response.ok) {
         // Handle the successful response
         router.push(
-          `/summary?request=${encodeURIComponent(
+          `/macrolocations?request=${encodeURIComponent(
             summary
           )}&recommendations=${encodeURIComponent(data.recommendation)}`
         );

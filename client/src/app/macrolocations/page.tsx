@@ -10,6 +10,12 @@ export interface MacroLocationOption {
   imageUrl?: string;
 }
 
+// const dummy = {
+//   country: "test",
+//   description: "diummy",
+//   status: 0,
+// };
+
 const SummaryPage = () => {
   const [macroLocations, setMacroLocations] = useState<
     MacroLocationOption[] | null
@@ -17,25 +23,6 @@ const SummaryPage = () => {
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  const renderMacroCards = () => {
-    if (loading) {
-      return <p>Loading locations...</p>;
-    }
-
-    if (!macroLocations) {
-      return <p>Error: We are having trouble with your request</p>;
-    }
-
-    return (
-      <MacroCard
-        options={macroLocations}
-        onSelect={handleSelect}
-        onRemove={handleRemove}
-        size="large"
-      />
-    );
-  };
 
   // Retrieve the input parameter from the URL
   const summary = searchParams.get("request") || "No input provided";
@@ -105,6 +92,7 @@ const SummaryPage = () => {
           );
 
           setMacroLocations(updatedLocations);
+          console.log("locations set");
         }
       } catch (error) {
         console.error("Error initializing locations:", error);
@@ -137,7 +125,6 @@ const SummaryPage = () => {
 
   const handleRemove = (country: MacroLocationOption) => {
     if (!macroLocations) return;
-
     setMacroLocations(
       (prevLocations) =>
         prevLocations?.map((location) =>
@@ -148,14 +135,6 @@ const SummaryPage = () => {
     );
   };
 
-  // if (loading) {
-  //   return (
-  //     <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-  //       <p>Loading locations...</p>
-  //     </main>
-  //   );
-  // }
-
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
       <h1 className="text-4xl font-bold mb-4 text-black">
@@ -165,7 +144,17 @@ const SummaryPage = () => {
       <div className="p-4 border border-gray-300 rounded-lg bg-white">
         <p className="text-lg text-black">{summary}</p>
       </div>
-      {renderMacroCards()}
+      {!loading ? (
+        <MacroCard
+          options={macroLocations || []}
+          onSelect={handleSelect}
+          onRemove={handleRemove}
+          size="large"
+        />
+      ) : (
+        <p>Loading...</p>
+      )}
+
       <button
         onClick={() => window.history.back()}
         className="mt-8 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col, Typography } from "antd";
+import { Card, Row, Col, Typography } from "antd";
 
 const { Title, Text } = Typography;
 
@@ -45,7 +45,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
           ? "w-[90%] h-[70vh]"
           : size === "small"
           ? "w-full h-[50vh]"
-          : "w-full h-[30vh]" // mini size height adjustment
+          : "w-full h-[30vh]"
       }`}
     >
       <Card className="relative overflow-hidden rounded-lg shadow-lg h-full">
@@ -55,7 +55,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
               ? "[200px]"
               : size === "small"
               ? "[150px]"
-              : "[10px]" // mini size image height
+              : "[100px]"
           } overflow-hidden rounded-t-lg`}
         >
           <img
@@ -75,32 +75,26 @@ const MacroCard: React.FC<MacroCardProps> = ({
             {option?.description}
           </Text>
           <div className="absolute bottom-4 right-4 flex gap-2">
-            <Button
+            <button
               onClick={() => onSelect(option)}
-              className="bg-green-500 hover:bg-green-600"
-              size={
-                size === "small"
-                  ? "small"
-                  : size === "mini"
-                  ? "small"
-                  : "middle"
-              }
+              className="bg-green-500 hover:bg-green-600 inline-flex items-center justify-center px-4 py-2"
+              style={{
+                fontSize:
+                  size === "small" || size === "mini" ? "small" : "medium",
+              }}
             >
               Select
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={() => onRemove(option)}
-              className="hover:bg-red-100"
-              size={
-                size === "small"
-                  ? "small"
-                  : size === "mini"
-                  ? "small"
-                  : "middle"
-              }
+              className="hover:bg-red-100 inline-flex items-center justify-center px-4 py-2"
+              style={{
+                fontSize:
+                  size === "small" || size === "mini" ? "small" : "medium",
+              }}
             >
               Remove
-            </Button>
+            </button>
           </div>
         </div>
       </Card>
@@ -108,27 +102,19 @@ const MacroCard: React.FC<MacroCardProps> = ({
   );
 
   return (
-    <Row className="h-[90vh] w-full">
-      {size === "large" ? (
-        <>
-          <Col className="flex justify-center w-1/2">
-            {renderCard(displayOptions[0])}
-          </Col>
-          <Col className="flex justify-center w-1/2">
-            {renderCard(displayOptions[1])}
-          </Col>
-        </>
-      ) : (
-        <div className="h-[90vh] w-full p-4">
-          <Row gutter={[16, 16]}>
-            {displayOptions.map((option, index) => (
-              <Col key={index} span={size === "mini" ? 6 : 8}>
-                {renderCard(option)}
-              </Col>
-            ))}
-          </Row>
-        </div>
-      )}
+    <Row className="h-[90vh] w-full" gutter={[16, 16]} justify="center">
+      {displayOptions.map((option, index) => (
+        <Col
+          key={index}
+          xs={24}
+          sm={12}
+          md={8}
+          lg={size === "large" ? 12 : 8}
+          className="flex justify-center"
+        >
+          {renderCard(option)}
+        </Col>
+      ))}
     </Row>
   );
 };

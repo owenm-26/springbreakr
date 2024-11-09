@@ -2,7 +2,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import MacroCard, { MacroLocationOption } from "@/components/MacroCard";
 import { useEffect, useState, useCallback } from "react";
-import { Button } from "antd";
 
 export interface MicroLocation {
   location: string;
@@ -228,7 +227,7 @@ export default function MicroLocationPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <Button onClick={handleClick}>Finish My Trip!</Button>
+      <button onClick={handleClick}>Finish My Trip!</button>
       {microLocations ? (
         <MacroCard
           options={microLocations}
