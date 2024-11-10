@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 import pickle, requests
 from dotenv import load_dotenv
 import os
-
+import json
 load_dotenv()  # Load environment variables from .env file
 
 SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
@@ -21,9 +21,11 @@ with open("knn_travel_model.pkl", "rb") as f:
 # LOCATION IMAGE
 @app.route("/location-image", methods=["GET"])
 def location_image():
-    def fetch_image_for_location(location):
+    def fetch_image_for_location(location, scenario):
         # getting rid of unsavory content
-        query = f"{location}%20iconic%20sights"
+        query= location
+        if scenario == "macro":
+            query += "%20iconic%20sights"
         url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}"
         print(url)
         response = requests.get(url)
@@ -38,11 +40,12 @@ def location_image():
             return None
 
     location = request.args.get("location")
+    scenario = request.args.get("scenario")
     if not location:
         return jsonify({"error": "Please provide a location"}), 400
 
     # Fetch the image URL for the specified location
-    image_url = fetch_image_for_location(location)
+    image_url = fetch_image_for_location(location, scenario)
     if image_url:
         return jsonify({"location": location, "image_url": image_url})
     else:
@@ -142,7 +145,6 @@ def get_micro_recommendations(country):
                 # Re-format the JSON to remove any formatting issues
                 fixed_recommendation = json.dumps(parsed_recommendation, indent=2)
 
-                print('\n\nfixed', fixed_recommendation)
                 return jsonify({"recommendation": fixed_recommendation})
             except (ValueError, KeyError, IndexError):
                 return jsonify({"error": "Unexpected response format from the server"}), 500

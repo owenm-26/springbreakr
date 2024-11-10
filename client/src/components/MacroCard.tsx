@@ -40,11 +40,17 @@ const MacroCard: React.FC<MacroCardProps> = ({
           : "w-full h-[30vh]"
       }`}
     >
-      <Card className="relative overflow-hidden rounded-lg shadow-lg h-full">
+      <Card
+        className="relative overflow-hidden rounded-lg shadow-lg"
+        style={{
+          height:
+            size === "large" ? "35rem" : size === "small" ? "20rem" : "10rem",
+        }}
+      >
         <div
           className={`h-${
             size === "large"
-              ? "[200px]"
+              ? "[100rem]"
               : size === "small"
               ? "[150px]"
               : "[100px]"
@@ -57,6 +63,11 @@ const MacroCard: React.FC<MacroCardProps> = ({
               "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
             }
             className="w-full h-full object-cover"
+            style={{
+              width: "100%",
+              maxHeight:
+                size === "large" ? "18rem" : size === "small" ? "8rem" : "6rem",
+            }}
           />
         </div>
         <div className="p-4">

@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const location = searchParams.get("location");
+  const scenario = searchParams.get("scenario");
 
-  if (!location) {
+  if (!location || !scenario) {
     return NextResponse.json(
       { error: "Please provide a location" },
       { status: 400 }
@@ -14,7 +15,9 @@ export async function GET(request: Request) {
   // Fetch the image URL for the specified location
   const url = `${
     process.env.NEXT_PUBLIC_BACKEND_URL
-  }/location-image?location=${encodeURIComponent(location)}`;
+  }/location-image?location=${encodeURIComponent(
+    location
+  )}&scenario=${encodeURIComponent(scenario)}`;
   const response = await fetch(url, {
     method: "GET",
     headers: {

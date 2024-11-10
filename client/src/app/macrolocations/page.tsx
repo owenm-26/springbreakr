@@ -58,7 +58,7 @@ const SummaryPage = () => {
                 const response = await fetch(
                   `/api/get_location_image?location=${encodeURIComponent(
                     location.placeName
-                  )}`,
+                  )}&scenario=macro`,
                   { method: "GET" }
                 );
 

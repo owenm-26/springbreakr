@@ -4,6 +4,11 @@ import MacroCard from "@/components/MacroCard";
 import { useEffect, useState, useCallback } from "react";
 import { LocationOption } from "../macrolocations/page";
 
+interface MicroResponse {
+  location: string;
+  description: string;
+}
+
 export default function LocationOptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,10 +50,9 @@ export default function LocationOptionPage() {
         if (!data.recommendation.endsWith("]")) {
           data.recommendation += "]";
         }
-
         const locations = JSON.parse(data.recommendation).map(
-          (item: LocationOption) => ({
-            country: item.placeName,
+          (item: MicroResponse) => ({
+            placeName: item.location,
             description: item.description,
             status: 0,
             imageUrl: null, // Initialize imageUrl
@@ -62,7 +66,8 @@ export default function LocationOptionPage() {
               const imageResponse = await fetch(
                 `/api/get_location_image?location=${encodeURIComponent(
                   location.placeName
-                )}`
+                )}&scenario=micro`,
+                { method: "GET" }
               );
 
               if (!imageResponse.ok) {
@@ -130,6 +135,7 @@ export default function LocationOptionPage() {
 
   const handleClick = async () => {
     // Gather selected countries where the status is not 2
+
     const selectedCountries =
       LocationOptions?.filter((location) => location.status !== 2).map(
         (location) => location.placeName
@@ -159,7 +165,7 @@ export default function LocationOptionPage() {
           },
           body: JSON.stringify({
             macroLocation: macroLocation,
-            LocationOptions: LocationOptions,
+            microLocations: LocationOptions,
             joinCode: joinCode,
           }),
         });
