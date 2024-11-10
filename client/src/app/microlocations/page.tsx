@@ -1,26 +1,22 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import MacroCard, { MacroLocationOption } from "@/components/MacroCard";
+import MacroCard from "@/components/MacroCard";
 import { useEffect, useState, useCallback } from "react";
+import { LocationOption } from "../macrolocations/page";
 
-export interface MicroLocation {
-  location: string;
-  description: string;
-}
-
-export default function MicroLocationPage() {
+export default function LocationOptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const location = searchParams.get("country");
   const prompt = searchParams.get("prompt");
 
-  const [microLocations, setMicroLocations] = useState<
-    MacroLocationOption[] | null
+  const [LocationOptions, setLocationOptions] = useState<
+    LocationOption[] | null
   >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMicroLocations = useCallback(async () => {
+  const fetchLocationOptions = useCallback(async () => {
     if (!location || !prompt) {
       setLoading(false);
       setError("Missing required parameters");
@@ -51,8 +47,8 @@ export default function MicroLocationPage() {
         }
 
         const locations = JSON.parse(data.recommendation).map(
-          (item: MicroLocation) => ({
-            country: item.location,
+          (item: LocationOption) => ({
+            country: item.placeName,
             description: item.description,
             status: 0,
             imageUrl: null, // Initialize imageUrl
@@ -61,11 +57,11 @@ export default function MicroLocationPage() {
 
         // Fetch images for each location
         const locationsWithImages = await Promise.all(
-          locations.map(async (location: MacroLocationOption) => {
+          locations.map(async (location: LocationOption) => {
             try {
               const imageResponse = await fetch(
                 `/api/get_location_image?location=${encodeURIComponent(
-                  location.country
+                  location.placeName
                 )}`
               );
 
@@ -81,7 +77,7 @@ export default function MicroLocationPage() {
               };
             } catch (error) {
               console.error(
-                `Error fetching image for ${location.country}:`,
+                `Error fetching image for ${location.placeName}:`,
                 error
               );
               return {
@@ -92,7 +88,7 @@ export default function MicroLocationPage() {
           })
         );
 
-        setMicroLocations(locationsWithImages);
+        setLocationOptions(locationsWithImages);
       } else {
         throw new Error("No recommendations received");
       }
@@ -107,25 +103,25 @@ export default function MicroLocationPage() {
   }, [location, prompt]);
 
   useEffect(() => {
-    fetchMicroLocations();
-  }, [fetchMicroLocations]);
+    fetchLocationOptions();
+  }, [fetchLocationOptions]);
 
-  const handleSelect = useCallback((selectedLocation: MacroLocationOption) => {
-    setMicroLocations((prevLocations) => {
+  const handleSelect = useCallback((selectedLocation: LocationOption) => {
+    setLocationOptions((prevLocations) => {
       if (!prevLocations) return null;
       return prevLocations.map((location) =>
-        location.country === selectedLocation.country
+        location.placeName === selectedLocation.placeName
           ? { ...location, status: 2 }
           : location
       );
     });
   }, []);
 
-  const handleRemove = useCallback((removedLocation: MacroLocationOption) => {
-    setMicroLocations((prevLocations) => {
+  const handleRemove = useCallback((removedLocation: LocationOption) => {
+    setLocationOptions((prevLocations) => {
       if (!prevLocations) return null;
       return prevLocations.map((location) =>
-        location.country === removedLocation.country
+        location.placeName === removedLocation.placeName
           ? { ...location, status: 1 }
           : location
       );
@@ -135,14 +131,14 @@ export default function MicroLocationPage() {
   const handleClick = async () => {
     // Gather selected countries where the status is not 2
     const selectedCountries =
-      microLocations
-        ?.filter((location) => location.status !== 2)
-        .map((location) => location.country) || [];
+      LocationOptions?.filter((location) => location.status !== 2).map(
+        (location) => location.placeName
+      ) || [];
 
     // Define the async function to call the create trip API endpoint
     const callCreateTrip = async (
       macroLocation: string,
-      microLocations: string[],
+      LocationOptions: string[],
       isCode: boolean
     ) => {
       if (!macroLocation) {
@@ -163,7 +159,7 @@ export default function MicroLocationPage() {
           },
           body: JSON.stringify({
             macroLocation: macroLocation,
-            microLocations: microLocations,
+            LocationOptions: LocationOptions,
             joinCode: joinCode,
           }),
         });
@@ -195,8 +191,7 @@ export default function MicroLocationPage() {
 
       // Handle response after API call
       if (response.ok) {
-        const url = `/itinerary?country=${location}&prompt=${encodeURIComponent(
-          prompt || ""
+        const url = `/itinerary?country=${location}
         )}&plan=${encodeURIComponent(JSON.stringify(selectedCountries))}`;
         router.push(url);
       } else {
@@ -228,9 +223,9 @@ export default function MicroLocationPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <button onClick={handleClick}>Finish My Trip!</button>
-      {microLocations ? (
+      {LocationOptions ? (
         <MacroCard
-          options={microLocations}
+          options={LocationOptions}
           onSelect={handleSelect}
           onRemove={handleRemove}
           size="small"

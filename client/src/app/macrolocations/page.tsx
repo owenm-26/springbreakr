@@ -3,23 +3,17 @@ import MacroCard from "@/components/MacroCard";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
-export interface MacroLocationOption {
-  country: string;
+export interface LocationOption {
+  placeName: string;
   description: string;
   status: number;
   imageUrl?: string;
 }
 
-// const dummy = {
-//   country: "test",
-//   description: "diummy",
-//   status: 0,
-// };
-
 const SummaryPage = () => {
-  const [macroLocations, setMacroLocations] = useState<
-    MacroLocationOption[] | null
-  >(null);
+  const [macroLocations, setMacroLocations] = useState<LocationOption[] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,13 +40,12 @@ const SummaryPage = () => {
         const rawIdeas = JSON.parse(decodedJson);
 
         if (rawIdeas && Array.isArray(rawIdeas)) {
-          const locationsWithPlaceholders = rawIdeas.map(
-            (item: MacroLocationOption) => ({
-              country: item.country,
-              description: item.description,
-              status: 0,
-            })
-          );
+          console.log(rawIdeas);
+          const locationsWithPlaceholders = rawIdeas.map((item) => ({
+            placeName: item.country,
+            description: item.description,
+            status: 0,
+          }));
 
           // Set initial state with placeholder images
           setMacroLocations(locationsWithPlaceholders);
@@ -61,10 +54,12 @@ const SummaryPage = () => {
           const updatedLocations = await Promise.all(
             locationsWithPlaceholders.map(async (location) => {
               try {
+                console.log(location.placeName);
                 const response = await fetch(
                   `/api/get_location_image?location=${encodeURIComponent(
-                    location.country
-                  )}`
+                    location.placeName
+                  )}`,
+                  { method: "GET" }
                 );
 
                 if (!response.ok) {
@@ -79,7 +74,7 @@ const SummaryPage = () => {
                 };
               } catch (error) {
                 console.error(
-                  `Error fetching image for ${location.country}:`,
+                  `Error fetching image for ${location.placeName}:`,
                   error
                 );
                 return {
@@ -104,31 +99,31 @@ const SummaryPage = () => {
     initializeLocations();
   }, [searchParams]);
 
-  const handleSelect = (country: MacroLocationOption) => {
+  const handleSelect = (country: LocationOption) => {
     if (!macroLocations) return;
 
     setMacroLocations(
       (prevLocations) =>
         prevLocations?.map((location) =>
-          location.country === country.country
+          location.placeName === country.placeName
             ? { ...location, status: 2 }
             : location
         ) || null
     );
 
     router.push(
-      `/microlocations?country=${country.country}&prompt=${encodeURIComponent(
+      `/microlocations?country=${country.placeName}&prompt=${encodeURIComponent(
         summary
       )}`
     );
   };
 
-  const handleRemove = (country: MacroLocationOption) => {
+  const handleRemove = (country: LocationOption) => {
     if (!macroLocations) return;
     setMacroLocations(
       (prevLocations) =>
         prevLocations?.map((location) =>
-          location.country === country.country
+          location.placeName === country.placeName
             ? { ...location, status: 1 }
             : location
         ) || null

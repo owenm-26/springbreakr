@@ -13,7 +13,8 @@ app = Flask(__name__)
 
 
 def fetch_image_for_location(location):
-    url = f"https://www.googleapis.com/customsearch/v1?q={location}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}"
+    query = f"{location}%20travel"
+    url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}&safe=high&imgType=photo&imgSize=medium"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()

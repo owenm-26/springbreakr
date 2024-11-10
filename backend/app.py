@@ -4,12 +4,12 @@ from flask import Flask, request, jsonify
 import pickle, requests
 from dotenv import load_dotenv
 import os
-import json
 
+load_dotenv()  # Load environment variables from .env file
 
-load_dotenv()
-SEARCH_ENGINE_ID=os.getenv("SEARCH_ENGINE_ID")
-API_KEY=os.getenv("API_KEY")
+SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
+API_KEY = os.getenv("API_KEY")
+
 
 app = Flask(__name__)
 
@@ -23,8 +23,9 @@ with open("knn_travel_model.pkl", "rb") as f:
 def location_image():
     def fetch_image_for_location(location):
         # getting rid of unsavory content
-        location = f"{location} -map -bomb -explosion -cloud -nuclear -war"
-        url = f"https://www.googleapis.com/customsearch/v1?q={location}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}"
+        query = f"{location}%20iconic%20sights"
+        url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={SEARCH_ENGINE_ID}&searchType=image&key={API_KEY}"
+        print(url)
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()

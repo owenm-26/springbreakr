@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, Typography } from "antd";
+import { LocationOption } from "@/app/macrolocations/page";
 
 const { Title, Text } = Typography;
 
-export interface MacroLocationOption {
-  country: string;
-  description: string;
-  status: number;
-  imageUrl?: string;
-}
-
 interface MacroCardProps {
-  options: MacroLocationOption[];
-  onSelect: (country: MacroLocationOption) => void;
-  onRemove: (country: MacroLocationOption) => void;
+  options: LocationOption[];
+  onSelect: (country: LocationOption) => void;
+  onRemove: (country: LocationOption) => void;
   size?: "mini" | "small" | "large";
 }
 
@@ -23,9 +17,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
   onRemove,
   size = "large",
 }) => {
-  const [displayOptions, setDisplayOptions] = useState<MacroLocationOption[]>(
-    []
-  );
+  const [displayOptions, setDisplayOptions] = useState<LocationOption[]>([]);
 
   useEffect(() => {
     const eligible = options.filter((option) => option.status !== 1);
@@ -38,7 +30,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
     }
   }, [options, size]);
 
-  const renderCard = (option: MacroLocationOption) => (
+  const renderCard = (option: LocationOption) => (
     <div
       className={`relative ${
         size === "large"
@@ -59,7 +51,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
           } overflow-hidden rounded-t-lg`}
         >
           <img
-            alt={option?.country || ""}
+            alt={option?.placeName || ""}
             src={
               option?.imageUrl ||
               "https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-nature-mountain-scenery-with-flowers-free-photo.jpg?w=2210&quality=70"
@@ -69,7 +61,7 @@ const MacroCard: React.FC<MacroCardProps> = ({
         </div>
         <div className="p-4">
           <Title level={size === "small" ? 4 : size === "mini" ? 5 : 3}>
-            {option?.country}
+            {option?.placeName}
           </Title>
           <Text className={`line-clamp-${size === "mini" ? 1 : 2}`}>
             {option?.description}
