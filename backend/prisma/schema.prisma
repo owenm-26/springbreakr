@@ -25,6 +25,7 @@ model MicroLocation {
   trips     Trip       @relation(fields: [tripId], references: [id])
   dislikers Traveler[] @relation("Dislikers")
   likers    Traveler[] @relation("Likers")
+  imageUrl String  @default("https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-fall-nature-scenery-free-image.jpeg?w=600&quality=80")
 
   @@index([tripId], map: "MicroLocation_tripId_fkey")
 }

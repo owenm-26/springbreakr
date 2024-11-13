@@ -9,6 +9,11 @@ interface MicroResponse {
   description: string;
 }
 
+export interface MicroLocationOption {
+  location: string;
+  imageUrl: string;
+}
+
 export default function LocationOptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -136,15 +141,19 @@ export default function LocationOptionPage() {
   const handleClick = async () => {
     // Gather selected countries where the status is not 2
 
-    const selectedCountries =
+    const selectedCountries: MicroLocationOption[] =
       LocationOptions?.filter((location) => location.status !== 2).map(
-        (location) => location.placeName
+        (location) =>
+          ({
+            location: location.placeName,
+            imageUrl: location.imageUrl,
+          } as MicroLocationOption)
       ) || [];
 
     // Define the async function to call the create trip API endpoint
     const callCreateTrip = async (
       macroLocation: string,
-      LocationOptions: string[],
+      LocationOptions: MicroLocationOption[],
       isCode: boolean
     ) => {
       if (!macroLocation) {
@@ -152,17 +161,19 @@ export default function LocationOptionPage() {
         return { ok: false, status: 400, error: "Macro location is required" };
       }
 
-      let joinCode = null;
-      if (isCode) {
-        joinCode = Math.random() * 10 ** 4;
-      }
+      const joinCode = isCode
+        ? Math.floor(Math.random() * 10000)
+            .toString()
+            .padStart(4, "0")
+        : 1;
 
       try {
         const createTripResponse = await fetch(`/api/create_trip`, {
-          method: "POST", // Specify method explicitly
+          method: "POST",
           headers: {
-            "Content-Type": "application/json", // Set headers for JSON
+            "Content-Type": "application/json",
           },
+
           body: JSON.stringify({
             macroLocation: macroLocation,
             microLocations: LocationOptions,
