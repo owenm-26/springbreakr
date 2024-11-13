@@ -180,7 +180,13 @@ export default function LocationOptionPage() {
           };
         }
 
-        return { ok: true, status: createTripResponse.status }; // Return successful response
+        const responseData = await createTripResponse.json();
+
+        return {
+          ok: true,
+          status: createTripResponse.status,
+          tripId: responseData.trip.id,
+        }; // Return successful response
       } catch (error) {
         console.error("API call failed:", error);
         return { ok: false, status: 500, error: error };
@@ -197,8 +203,7 @@ export default function LocationOptionPage() {
 
       // Handle response after API call
       if (response.ok) {
-        const url = `/itinerary?country=${location}
-        )}&plan=${encodeURIComponent(JSON.stringify(selectedCountries))}`;
+        const url = `/itinerary?tripId=${response.tripId}`;
         router.push(url);
       } else {
         // Handle error in the response status

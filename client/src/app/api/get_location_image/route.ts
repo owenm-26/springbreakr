@@ -1,8 +1,24 @@
 import { NextResponse } from "next/server";
 
+export function sanitizeLocation(location: string): string {
+  return (
+    location
+      // Replace accented characters with their basic Latin equivalents
+      .normalize("NFKD")
+      // Remove the combining diacritical marks
+      .replace(/[\u0300-\u036f]/g, "")
+      // Replace any remaining non-alphanumeric characters (except spaces) with spaces
+      .replace(/[^a-zA-Z0-9\s]/g, " ")
+      // Replace multiple spaces with a single space
+      .replace(/\s+/g, " ")
+      // Trim spaces from start and end
+      .trim()
+  );
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const location = searchParams.get("location");
+  const location = sanitizeLocation(searchParams.get("location") || "");
   const scenario = searchParams.get("scenario");
 
   if (!location || !scenario) {

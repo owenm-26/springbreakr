@@ -17,6 +17,7 @@ export async function POST(req: Request) {
   }
 
   try {
+    console.log("starting backend query");
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/get_recommendations/micro/${country}`,
       {
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({ prompt }), // Ensure body is in JSON format
       }
     );
+    console.log("finished backend query");
 
     if (!response.ok) {
       return NextResponse.json(
@@ -34,11 +36,11 @@ export async function POST(req: Request) {
         { status: response.status }
       );
     }
-
+    console.log("response", response);
     const data = await response.json();
 
     if (data.error) {
-      console.log(data);
+      console.log("BACKEND ERROR", data);
       return NextResponse.json({ error: data.error }, { status: 500 });
     }
 
