@@ -23,7 +23,7 @@ export default function ItineraryPage() {
         setTrip(data.trip);
         console.log(data.trip);
       } catch (e) {
-        console.error("Error getting locationById");
+        console.error("Error getting locationById", e);
       }
     };
     getTripById();
@@ -34,7 +34,6 @@ export default function ItineraryPage() {
       <h1 className="text-4xl font-extrabold text-white mb-6 ">
         {trip?.macroLocation}
       </h1>
-      <StepForwardOutlined />
 
       {trip ? (
         <div>
